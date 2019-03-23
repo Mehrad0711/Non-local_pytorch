@@ -1,4 +1,5 @@
 from torch import nn
+import torch
 # from lib.non_local_concatenation import NONLocalBlock2D
 # from lib.non_local_gaussian import NONLocalBlock2D
 from lib.non_local_embedded_gaussian import NONLocalBlock2D
@@ -6,11 +7,11 @@ from lib.non_local_embedded_gaussian import NONLocalBlock2D
 
 
 class Network(nn.Module):
-    def __init__(self):
+    def __init__(self, in_channels=1, out_size=10):
         super(Network, self).__init__()
 
         self.convs = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(in_channels=in_channels, out_channels=32, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(2),
@@ -29,11 +30,10 @@ class Network(nn.Module):
         )
 
         self.fc = nn.Sequential(
-            nn.Linear(in_features=128*3*3, out_features=256),
+            nn.Linear(in_features=128*99, out_features=256),
             nn.ReLU(),
             nn.Dropout(0.5),
-
-            nn.Linear(in_features=256, out_features=10)
+            nn.Linear(in_features=256, out_features=out_size)
         )
 
     def forward(self, x):
@@ -43,10 +43,10 @@ class Network(nn.Module):
         return output
 
 if __name__ == '__main__':
-    import torch
 
-    img = torch.randn(3, 1, 28, 28)
-    net = Network()
+    batch_size = 3
+    img = torch.randn(batch_size, 75, 76, 91)
+    net = Network(in_channels=75, out_size=10)
     out = net(img)
     print(out.size())
 
